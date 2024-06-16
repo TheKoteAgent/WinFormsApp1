@@ -30,60 +30,94 @@ namespace WinFormsApp1
             "10"
         };
 
-        private TextBox[] answerTextBoxes = new TextBox[10];
+        private string[] userAnswers = new string[10];
+        private int current = 0;
+
+        private Label questionLabel;
+        private TextBox answerTextBox;
+        private Button nextButton;
+        private Button finishButton;
+
         public Form1()
         {
             InitializeComponent();
-            InitializeQuiz();
+            Quiz();
         }
 
-        private void InitializeQuiz()
+        private void Quiz()
         {
-            for (int i = 0; i < 10; i++)
+            questionLabel = new Label();
+            questionLabel.Top = 20;
+            questionLabel.Left = 10;
+            questionLabel.Width = 400;
+            this.Controls.Add(questionLabel);
+
+            answerTextBox = new TextBox();
+            answerTextBox.Top = 50;
+            answerTextBox.Left = 10;
+            answerTextBox.Width = 400;
+            this.Controls.Add(answerTextBox);
+
+            nextButton = new Button();
+            nextButton.Text = "Next";
+            nextButton.Top = 100;
+            nextButton.Left = 10;
+            nextButton.Click += NextButton;
+            this.Controls.Add(nextButton);
+
+            finishButton = new Button();
+            finishButton.Text = "Finish";
+            finishButton.Top = 100;
+            finishButton.Left = 100;
+            finishButton.Click += FinishButton;
+            this.Controls.Add(finishButton);
+
+            DisplayCurrent();
+        }
+
+        private void DisplayCurrent()
+        {
+            questionLabel.Text = questions[current];
+            answerTextBox.Text = userAnswers[current];
+        }
+
+        private void NextButton(object sender, EventArgs e)
+        {
+            userAnswers[current] = answerTextBox.Text.Trim();
+            current++;
+
+            if (current >= questions.Length)
             {
-                Label questionLabel = new Label();
-                questionLabel.Text = questions[i];
-                questionLabel.Top = 20 + i * 30;
-                questionLabel.Left = 10;
-                questionLabel.Width = 200;
-                this.Controls.Add(questionLabel);
-
-                TextBox answerTextBox = new TextBox();
-                answerTextBox.Top = 20 + i * 30;
-                answerTextBox.Left = 220;
-                answerTextBox.Width = 100;
-                this.Controls.Add(answerTextBox);
-                answerTextBoxes[i] = answerTextBox;
+                current = questions.Length - 1;
+                MessageBox.Show("click finish");
             }
-
-            Button checkButton = new Button();
-            checkButton.Text = "Check Answers";
-            checkButton.Top = 350;
-            checkButton.Left = 10;
-            checkButton.Click += CheckButton_Click;
-            this.Controls.Add(checkButton);
+            else
+            {
+                DisplayCurrent();
+            }
         }
 
-        private void CheckButton_Click(object sender, EventArgs e)
+        private void FinishButton(object sender, EventArgs e)
         {
+            userAnswers[current] = answerTextBox.Text.Trim();
             int score = 0;
-            string wrongAnswers = "Incorrect answers:\n";
+            string wrongAnswers = "Incorrect:\n";
             bool anyWrong = false;
 
             for (int i = 0; i < 10; i++)
             {
-                if (answerTextBoxes[i].Text.Trim().Equals(answers[i], StringComparison.InvariantCultureIgnoreCase))
+                if (userAnswers[i].Equals(answers[i], StringComparison.InvariantCultureIgnoreCase))
                 {
                     score++;
                 }
                 else
                 {
-                    wrongAnswers += $"Vo[ros {i + 1}: {questions[i]}\nanswer: {answers[i]}\n\n";
+                    wrongAnswers += $"Question {i + 1}: {questions[i]}\nYour answer: {userAnswers[i]}\n\n";
                     anyWrong = true;
                 }
             }
 
-            string resultMessage = $"mark: {score}/10\n";
+            string resultMessage = $"Mark: {score}/10\n";
             if (anyWrong)
             {
                 resultMessage += wrongAnswers;
@@ -91,6 +125,7 @@ namespace WinFormsApp1
 
             MessageBox.Show(resultMessage);
         }
+        
 
         private void button1_Click(object sender, EventArgs e)
         {
